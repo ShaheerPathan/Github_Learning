@@ -20,9 +20,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/*"
-          target: "/var/www/frontend"
-          strip_components: 1
+            source: "frontend/*"
+            target: "/var/www/frontend"
+            strip_components: 1
+            overwrite: true
+
+
+      
 
       # ---------- BACKEND DEPLOY ----------
       - name: Deploy backend
