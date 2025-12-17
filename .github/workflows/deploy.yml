@@ -1,0 +1,40 @@
+name: Deploy Frontend & Backend to EC2
+
+on:
+  push:
+    branches:
+      - main   # ✅ only main deploys
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------- FRONTEND DEPLOY ----------
+      - name: Deploy frontend
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend/*"
+          target: "/var/www/frontend"
+          strip_components: 1
+
+      # ---------- BACKEND DEPLOY ----------
+      - name: Deploy backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/backend
+            rm -rf *
+            cp -r /home/ec2-user/github_action/backend/* .
+            npm install
+            pm2 start server.js --name backend || pm2 restart backend
+            pm2 save
