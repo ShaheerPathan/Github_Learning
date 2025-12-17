@@ -14,6 +14,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ---------- CLEAN OLD FILES ----------
+      - name: Clean EC2 directories
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            rm -rf /var/www/frontend/*
+            rm -rf /home/ec2-user/backend/*
+
       # ---------- FRONTEND DEPLOY ----------
       - name: Deploy frontend
         uses: appleboy/scp-action@v0.1.7
@@ -38,7 +49,7 @@ jobs:
           strip_components: 1
           overwrite: true
 
-      # ---------- BACKEND RESTART ----------
+      # ---------- BACKEND INSTALL & RESTART ----------
       - name: Install deps & restart backend
         uses: appleboy/ssh-action@v1.0.3
         with:
